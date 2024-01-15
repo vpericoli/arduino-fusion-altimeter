@@ -209,8 +209,8 @@ void loop() {
 
   // Update barometric bias estimate at requested interval.
   // only update if there are sufficient data in the buffers.
-  // it would also be nice to update once shortly after start-up instead of having to wait for biasUpdateInterval.
-  // a lot of these variables are globals, so I don't need to pass them as args. doing so anyway. 
+  // a lot of these variables are globals, so I don't need to pass them as args...
+  // doing so anyway to avoid ambiguity. 
   bool sufficient_buffer = (altitudeBuffP.size() >= 20) && (altitudeBuffGNSS.size() > 5);
 
   if( (currentMillis - lastBiasUpdate >= biasUpdateInterval) && sufficient_buffer ) {
@@ -321,6 +321,9 @@ float altitude_from_pressure(float pressure) {
 // function to perform linear least squares and evaluate best fit at each point
 //
 void LLSQ_eval(const unsigned long* x, const float* y, int n, float &slope, float* yFit) {
+  // performs linear least squares fit to data (x,y) of size n.
+  // returns the slope of the best fit line `slope`, and the best fit line evaluated at each x point `yFit`.
+  // 
   // Example usage:
   // unsigned long x[] = {1, 2, 3, 4, 5};
   // float y[] = {2, 3, 4, 6, 5};
@@ -431,11 +434,11 @@ float compute_baro_bias(CircularBuffer<float, bufferSizeGNSS>& altitudeBuffGNSS,
       associated_n[J_buff_indx] = n; // we'll need this later.
     }
 
-    // compute mean altitude for each sensor, over the m time window
+    // compute mean altitude for each sensor, over the considered time window
     float meanAltitudeGNSS = arr_mean(altitudeArrGNSS, n);
     float meanAltitudeP = arr_mean(altitudeArrP, m);
 
-    // compute GNSS altitude variance over the m time window
+    // compute GNSS altitude variance over the considered time window
     float varGNSS = arr_mean(altitudeVarArrGNSS, n);
 
     // perform LSQ fit to barometric data
@@ -497,7 +500,7 @@ float compute_baro_bias(CircularBuffer<float, bufferSizeGNSS>& altitudeBuffGNSS,
   // we have now computed J (cost function) for all candidates of m.
   // find the m associated with min(J)
   // J_buff is only filled up to index of: current value of J_buff_indx.
-  // note that m_max may not be divisible by 5 without remainders.
+  // (note that m_max may not be divisible by 5 without remainders, using [m_max/5-2] would be incorrect)
   int J_min_indx = arr_min_indx(J_buff, J_buff_indx+1);
   m = (J_min_indx + 2) * 5;
   n = associated_n[J_min_indx];
