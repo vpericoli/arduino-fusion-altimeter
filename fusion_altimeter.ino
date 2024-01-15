@@ -1,5 +1,5 @@
 /*  
- *  Datermine current vehicle altitude by fusing barometric
+ *  Determine current vehicle altitude by fusing barometric
  *  and GPS data. Display this altitude to screen.  
  *  Fusion algorithm is based on Zaliva and Franchetti (2014).
  */ 
@@ -19,9 +19,7 @@
 #include <cfloat> // for FLT_MAX
 
 #ifdef DEBUG
-  // for debug only.
-  #include <malloc.h> 
-  #include <avr/dtostrf.h>
+  #include <malloc.h> // for stackCount()
 #endif
 
 //
